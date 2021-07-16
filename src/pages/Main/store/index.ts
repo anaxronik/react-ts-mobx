@@ -1,34 +1,25 @@
 import { runInAction } from "mobx";
+import { RootStore } from "../../../common/store";
 
-/** Класс для наследования стора */
-class RootStore {
-  isLoading: boolean = false;
+class MainStore extends RootStore {
+  user = {
+    completed: undefined,
+    id: undefined,
+    title: undefined,
+    userId: undefined,
+  };
 
-  setIsLoading = (bool: boolean) => runInAction(() => (this.isLoading = bool));
-
-  makeRequest = async () => {
-    try {
-      this.setIsLoading(true);
-    } catch (error) {
-      throw new Error("Error in makeRequest");
-    } finally {
-      this.setIsLoading(false);
-    }
+  getUser = () => {
+    this.makeGetRequest(
+      "https://jsonplaceholder.typicode.com/photos",
+      "post",
+      {
+        page: 1,
+        pageSize: 20,
+      },
+      { name: "name", number: 1 }
+    );
   };
 }
 
-class Store extends RootStore {}
-
-class Api {
-  getRequest() {}
-  postRequest() {}
-}
-
-class UserApi extends Api {
-  // CRUD methodss api
-  create() {}
-  getById() {}
-  getList() {}
-  edit() {}
-  delete() {}
-}
+export default new MainStore();

@@ -1,45 +1,38 @@
-import { makeObservable, observable, computed, action, runInAction } from 'mobx'
-
-export type TValues = string | number | boolean
+import { action, makeObservable, observable, runInAction } from "mobx";
+import axios, { AxiosRequestConfig } from "axios";
 
 /** Класс для наследования стора */
-export class Store {
-  isLoading: boolean = false
-  values: { [key: string]: TValues } = {}
-  errors: { [key: string]: string } = {}
+export class RootStore {
+  isLoading: boolean = false;
 
   constructor() {
     makeObservable(this, {
       isLoading: observable,
-      values: observable,
-    })
+      makeGetRequest: action,
+    });
   }
 
-  setIsLoading = (bool: boolean) => {
-    runInAction(() => (this.isLoading = bool))
-  }
+  setIsLoading = (bool: boolean) => runInAction(() => (this.isLoading = bool));
 
-  makeRequest = async (
-    url: string,
-    method: 'GET' | 'POST' = 'GET',
-    params = {},
-    body = {}
+  makeGetRequest = (
+    url: AxiosRequestConfig["url"],
+    method: AxiosRequestConfig["method"] = "GET",
+    params: AxiosRequestConfig["params"] = {},
+    data?: AxiosRequestConfig["data"]
   ) => {
-    try {
-      this.setIsLoading(true)
-      console.log('start req')
-    } catch (error) {
-      await setTimeout(() => {
-        console.log('req complete')
-        this.values.title = 'req complete'
-      }, 6000)
-    } finally {
-      this.setIsLoading(false)
-      console.log('finish req')
-    }
-  }
-
-  setValueByKey = (key: string, value: TValues) => {
-    if (key && value) this.values[key] = value
-  }
+    this.setIsLoading(true);
+    axios({
+      method,
+      url,
+      data,
+      params,
+    })
+      .then((response) => {
+        console.log(".then", response);
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.setIsLoading(false);
+      });
+  };
 }
